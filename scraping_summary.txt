@@ -1,22 +1,22 @@
 === Scraping Summary ===
 
-Start Time: 2025-08-17T14:23:54.098525
-End Time: 2025-08-17T14:24:27.603214
-Duration: 0 minutes 33 seconds
+Start Time: 2025-08-17T18:12:27.525193
+End Time: 2025-08-17T18:13:00.494989
+Duration: 0 minutes 32 seconds
 
-Average time per product: 3.30 seconds
+Average time per product: 3.20 seconds
 Total Products: 10
 Successfully Scraped: 10
 Failed: 0
 
 === Successful Products ===
-- https://poshmark.com/listing/Lululemon-Mens-Pacemaker-Shorts-687eeb80006e43664ffe5d58
+- https://poshmark.com/listing/Sperry-Livingston-Mens-Sandals-687eec11006e43947efe627a
 - https://poshmark.com/listing/Lululemon-winder-train-ribbed-leggings-687eea51bd4ce30d24103ddf
 - https://poshmark.com/listing/BOGS-kids-rubber-boots-687dad7821bd42f80182ef72
+- https://poshmark.com/listing/Lululemon-Mens-Pacemaker-Shorts-687eeb80006e43664ffe5d58
 - https://poshmark.com/listing/Carhartt-Woodside-Beanie-687eed5905deb3af86423fed
-- https://poshmark.com/listing/Sperry-Livingston-Mens-Sandals-687eec11006e43947efe627a
-- https://poshmark.com/listing/Soma-lightly-lined-perfect-coverage-bra-687eecb2ff03208219004575
 - https://poshmark.com/listing/Chaco-black-and-white-Strappy-sandal-6885b5e9243daefd118d076a
+- https://poshmark.com/listing/Soma-lightly-lined-perfect-coverage-bra-687eecb2ff03208219004575
 - https://poshmark.com/listing/Outdoor-Voices-Mens-Pants-687eedaef59cc406d0015ae8
 - https://poshmark.com/listing/SoftSurroundingsStraight-leg-pull-on-pants-6556c52b6da06ecd4acb80d1
 - https://poshmark.com/listing/YellowBox-CheetahFur-Slippers-655c10ee842dd4f4a51a38ba

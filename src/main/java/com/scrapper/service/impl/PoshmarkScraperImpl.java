@@ -125,7 +125,7 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
                     log.info("Scraping product: {}", productUrl);
 
                     // Random delay before navigation
-                    ScraperUtility.randomSleep(2, 5);
+                    ScraperUtility.randomSleep(2, 4);
 
                     // Navigate to the product page
                     page.navigate(productUrl, new Page.NavigateOptions()
@@ -185,7 +185,7 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
         for (int i = 0; i < scrolls; i++) {
             int scrollAmount = minScroll + (int) (Math.random() * (maxScroll - minScroll));
             page.evaluate("window.scrollBy(0, " + scrollAmount + ");");
-            ScraperUtility.randomSleep(3, 8);
+            ScraperUtility.randomSleep(2, 3);
         }
     }
 
@@ -229,7 +229,7 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
         summary.setTotalProducts(productUrls.size());
         summary.setTotalProducts(productUrls.size());
         // Add random delay to avoid being blocked
-        ScraperUtility.randomSleep(3, 6);
+        ScraperUtility.randomSleep(2, 4);
         List<Product> products = Collections.synchronizedList(new ArrayList<>());
         AtomicInteger counter = new AtomicInteger(1);
         int totalProducts = productUrls.size();
@@ -237,7 +237,7 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
         productUrls.parallelStream().forEach(productUrl -> {
             int currentIndex = counter.getAndIncrement();
             log.info("Processing product {}/{}: {}", currentIndex, totalProducts, productUrl);
-            ScraperUtility.randomSleep(2, 5);
+            ScraperUtility.randomSleep(2, 4);
             try {
                 // Connect with headers to mimic a real browser request
                 Document doc = playwrightConfig.getJsoupDocument(productUrl);
