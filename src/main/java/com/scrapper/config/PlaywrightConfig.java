@@ -1,15 +1,17 @@
 package com.scrapper.config;
 
 import com.microsoft.playwright.*;
-import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.util.List;
 
-@UtilityClass
-public class PlaywrightConfig {
+@Slf4j
+public class PlaywrightConfig implements AutoCloseable {
+    private static PlaywrightConfig instance;
+    private Playwright playwright;
     private static final String[] USER_AGENTS = {
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -19,7 +21,18 @@ public class PlaywrightConfig {
     };
     private static final int SLOW_MO = 200; // Increased delay between operations
 
-    public static String getRandomUserAgent() {
+    private PlaywrightConfig() {
+        this.playwright = Playwright.create();
+    }
+
+    public static synchronized PlaywrightConfig getInstance() {
+        if (instance == null) {
+            instance = new PlaywrightConfig();
+        }
+        return instance;
+    }
+
+    public String getRandomUserAgent() {
         return USER_AGENTS[(int) (Math.random() * USER_AGENTS.length)];
     }
 
@@ -28,9 +41,8 @@ public class PlaywrightConfig {
      *
      * @return Configured Browser instance
      */
-    public static Browser createBrowser(boolean headless) {
-        return Playwright.create()
-                .chromium()
+    public Browser createBrowser(boolean headless) {
+        return playwright.chromium()
                 .launch(new BrowserType.LaunchOptions()
                         .setHeadless(headless)
                         .setSlowMo(SLOW_MO)
@@ -46,7 +58,7 @@ public class PlaywrightConfig {
      * @param browser Browser instance to create context from
      * @return Configured BrowserContext
      */
-    public static BrowserContext createBrowserContext(Browser browser) {
+    public BrowserContext createBrowserContext(Browser browser) {
         // Generate a random viewport size to appear more human-like
         int width = 1280 + (int) (Math.random() * 500);  // 1280-1780
         int height = 800 + (int) (Math.random() * 500);  // 800-1300
@@ -91,7 +103,7 @@ public class PlaywrightConfig {
      * @param context BrowserContext to create page from
      * @return New Page instance
      */
-    public static Page createPage(BrowserContext context) {
+    public Page createPage(BrowserContext context) {
         Page page = context.newPage();
         // Set default navigation timeout (30 seconds)
         page.setDefaultNavigationTimeout(30000);
@@ -100,9 +112,9 @@ public class PlaywrightConfig {
         return page;
     }
 
-    public static Document getJsoupDocument(String productUrl) throws IOException {
+    public Document getJsoupDocument(String productUrl) throws IOException {
         return Jsoup.connect(productUrl)
-                .userAgent(PlaywrightConfig.getRandomUserAgent())
+                .userAgent(getRandomUserAgent())
                 .timeout(10000)
                 .header("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
                 .header("accept-language", "en-US,en;q=0.9,hi;q=0.8")
@@ -119,4 +131,21 @@ public class PlaywrightConfig {
                 .get();
     }
 
+    /**
+     * Closes the Playwright instance and releases all resources.
+     * This method should be called when the Playwright instance is no longer needed.
+     */
+    @Override
+    public void close() {
+        try {
+            if (playwright != null) {
+                playwright.close();
+                playwright = null;
+                instance = null;
+                log.info("Playwright instance closed successfully");
+            }
+        } catch (Exception e) {
+            log.error("Error closing Playwright: {}", e.getMessage(), e);
+        }
+    }
 }

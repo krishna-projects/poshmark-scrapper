@@ -19,12 +19,15 @@ import java.util.List;
 import java.util.Set;
 
 @Slf4j
-public class PoshmarkScraperImpl implements PostmarkScraperService {
+public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseable {
     private final BrowserContext context;
+    private final Browser browser;
+    private final PlaywrightConfig playwrightConfig;
 
     public PoshmarkScraperImpl(boolean headless) {
-        Browser browser = PlaywrightConfig.createBrowser(headless);
-        this.context = PlaywrightConfig.createBrowserContext(browser);
+        this.playwrightConfig = PlaywrightConfig.getInstance();
+        this.browser = playwrightConfig.createBrowser(headless);
+        this.context = playwrightConfig.createBrowserContext(browser);
     }
 
     @Override
@@ -33,8 +36,8 @@ public class PoshmarkScraperImpl implements PostmarkScraperService {
         productCount = productCount > 0 ? productCount : Integer.MAX_VALUE;
         Set<String> productUrls = new HashSet<>();
 
-        // Initialize browser using PlaywrightConfig
-        Page page = PlaywrightConfig.createPage(context);
+        // Create a new page
+        Page page = playwrightConfig.createPage(context);
 
         // Navigate to the closet page
         log.info("Navigating to: {}", closetUrl);
@@ -54,14 +57,14 @@ public class PoshmarkScraperImpl implements PostmarkScraperService {
                     String productUrl = "https://poshmark.com" + productCard.querySelector("div.card.card--small > a")
                             .getAttribute("href");
                     if (productUrls.add(productUrl)) { // Only process new URLs
-                        log.info("✅ Extracted link: {} (Total: {}/{})",
+                        log.info("Extracted link: {} (Total: {}/{})",
                                 productUrl, productUrls.size(), productCount);
                         if (productUrls.size() >= productCount) {
                             break;
                         }
                     }
                 } catch (Exception e) {
-                    log.error("❌ Error extracting product: {}", e.getMessage());
+                    log.error("Error extracting product: {}", e.getMessage());
                 }
             }
             // Check if we've reached our target or if no new products were found
@@ -109,7 +112,7 @@ public class PoshmarkScraperImpl implements PostmarkScraperService {
                         if (page != null) {
                             page.close();
                         }
-                        page = PlaywrightConfig.createPage(context);
+                        page = playwrightConfig.createPage(context);
                         processed = 0;
                         // Add a longer delay when creating a new page
                         ScraperUtility.randomSleep(5, 10);
@@ -182,6 +185,24 @@ public class PoshmarkScraperImpl implements PostmarkScraperService {
         }
     }
 
+    @Override
+    public void close() {
+        log.info("Closing browser resources");
+        try {
+            if (context != null) {
+                context.close();
+            }
+            if (browser != null) {
+                browser.close();
+            }
+            if (playwrightConfig != null) {
+                playwrightConfig.close();
+            }
+        } catch (Exception e) {
+            log.warn("Error closing browser resources: {}", e.getMessage());
+        }
+    }
+
     /**
      * Scrapes product details using Jsoup (faster than Playwright for simple pages)
      *
@@ -197,7 +218,7 @@ public class PoshmarkScraperImpl implements PostmarkScraperService {
             ScraperUtility.randomSleep(2, 5);
             try {
                 // Connect with headers to mimic a real browser request
-                Document doc = PlaywrightConfig.getJsoupDocument(productUrl);
+                Document doc = playwrightConfig.getJsoupDocument(productUrl);
 
                 // Extract product details
                 String productId = ScraperUtility.extractProductIdFromUrl(productUrl);

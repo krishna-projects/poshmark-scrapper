@@ -12,8 +12,8 @@ import java.util.Set;
 public class PoshmarkScrapper {
     // Default values
     private static final String DEFAULT_CLOSET_URL = "https://poshmark.com/closet/peechypies?availability=available";
-    private static final int DEFAULT_PRODUCT_COUNT = 20;
-    private static final String DEFAULT_FILE_FORMAT = "csv";
+    private static final int DEFAULT_PRODUCT_COUNT = 10;
+    private static final String DEFAULT_FILE_FORMAT = "json";
     private static final boolean DEFAULT_HEADLESS = true;
 
     public static void main(String[] args) {
@@ -35,9 +35,8 @@ public class PoshmarkScrapper {
         log.info("Output Format: {}", fileFormat);
         log.info("Headless Mode: {}", headless ? "Enabled" : "Disabled");
 
-        try {
+        try (PoshmarkScraperImpl service = new PoshmarkScraperImpl(headless)){
             double startTime = System.currentTimeMillis();
-            PoshmarkScraperImpl service = new PoshmarkScraperImpl(headless);
 
             log.info("Fetching product URLs...");
             Set<String> productUrls = service.getProductUrls(closetUrl, productCount);
