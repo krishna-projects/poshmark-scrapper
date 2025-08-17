@@ -115,6 +115,74 @@ The scraper generates two output files:
 
 The scraper generates a detailed summary in `scraping_summary.txt` and saves the scraped data in the specified format (JSON/CSV).
 
+### json Output
+
+```json
+{
+  "metadata" : {
+    "source_url" : "https://poshmark.com/closet/peechypies?availability=available",
+    "total_products" : 10,
+    "scrape_date" : "2025-08-17T12:40:53.570196Z",
+    "execution_time_seconds" : 32.936
+  },
+  "products" : [ {
+    "productId" : "Lululemon-winder-train-ribbed-leggings-687eea51bd4ce30d24103ddf",
+    "productTitle" : "Lululemon winder train ribbed leggings",
+    "brandName" : "lululemon athletica",
+    "price" : "$118",
+    "discountedPrice" : "$50",
+    "size" : "4",
+    "colors" : [ "Black" ],
+    "categories" : [ "Women", "Pants & Jumpsuits", "Leggings" ],
+    "description" : "Lululemon winder train ribbed leggings Size 4 Excellent gently used condition Black",
+    "productUrl" : "https://poshmark.com/listing/Lululemon-winder-train-ribbed-leggings-687eea51bd4ce30d24103ddf",
+    "imageUrls" : [ "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eea51bd4ce30d24103ddf/s_687eea64b944910c96911daa.jpg", "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eea51bd4ce30d24103ddf/s_687eea6521b801d394e9a1bd.jpg", "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eea51bd4ce30d24103ddf/s_687eea6505deb3ac05422486.jpg", "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eea51bd4ce30d24103ddf/s_687eea669f19e269e4267852.jpg" ],
+    "sellerUsername" : "peechypies",
+    "listingDate" : "Updated 7 mins ago"
+  }, {
+    "productId" : "Lululemon-Mens-Pacemaker-Shorts-687eeb80006e43664ffe5d58",
+    "productTitle" : "Lululemon Men’s Pacemaker Shorts",
+    "brandName" : "lululemon athletica",
+    "price" : "$98",
+    "discountedPrice" : "$38",
+    "size" : "L",
+    "colors" : [ "Black", "Gray" ],
+    "categories" : [ "Men", "Shorts", "Athletic" ],
+    "description" : "Lululemon Men’s Pacemaker Shorts Size men’s Large Gently used condition Some fraying in crotch shown",
+    "productUrl" : "https://poshmark.com/listing/Lululemon-Mens-Pacemaker-Shorts-687eeb80006e43664ffe5d58",
+    "imageUrls" : [ "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eeb80006e43664ffe5d58/s_687eeb92a0dc2b3251266953.jpg", "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eeb80006e43664ffe5d58/s_687eeb939b2158781a0f117f.jpg", "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eeb80006e43664ffe5d58/s_687eeb9324d2e744cfd0a1a2.jpg", "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eeb80006e43664ffe5d58/s_687eeb9449e17b58b99b3a99.jpg", "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eeb80006e43664ffe5d58/s_687eeb952326c8dd5bffaf86.jpg", "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eeb80006e43664ffe5d58/s_687eeb96b7f0ac2e8b77c7b1.jpg" ],
+    "sellerUsername" : "peechypies",
+    "listingDate" : "Updated 7 mins ago"
+  }, {
+    "productId" : "Carhartt-Woodside-Beanie-687eed5905deb3af86423fed",
+    "productTitle" : "Carhartt Woodside Beanie",
+    "brandName" : "Carhartt",
+    "price" : "$39",
+    "discountedPrice" : "$21",
+    "size" : "OS",
+    "colors" : [ "Tan" ],
+    "categories" : [ "Men", "Accessories", "Hats" ],
+    "description" : "Carhartt Woodside Beanie Gently used condition Bison colorway",
+    "productUrl" : "https://poshmark.com/listing/Carhartt-Woodside-Beanie-687eed5905deb3af86423fed",
+    "imageUrls" : [ "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eed5905deb3af86423fed/s_687eed67850012540c0870a6.jpg", "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eed5905deb3af86423fed/s_687eed68bd4ce31a16105a40.jpg", "https://di2ponv0v5otw.cloudfront.net/posts/2025/07/21/687eed5905deb3af86423fed/s_687eed68310f1cdd1ede6c95.jpg" ],
+    "sellerUsername" : "peechypies",
+    "listingDate" : "Updated 7 mins ago"
+  } ]
+}
+```
+
+### CSV Output
+
+| Product ID | Product Title | Brand | Price | Discounted Price | Size | Color | Category | Description | Product URL | Seller | Listed |
+|------------|---------------|-------|-------|------------------|------|-------|-----------|-------------|-------------|--------|--------|
+| `Sperry-Livingston-Mens-Sandals-687eec11006e43947efe627a` | Sperry Livingston Men's Sandals | - | - | $30 | 12 | Black | Men > Shoes > Sandals & Flip-Flops | Sperry Livingston Men's Sandals Size men's 12 Excellent gently used condition | https://poshmark.com/listing/Sperry-Livingston-Mens-Sandals-687eec11006e43947efe627a | speechypies | Updated a minute ago |
+| `Lululemon-winder-train-ribbed-leggings-687eea51bd4ce30d24103ddf` | Lululemon winder train ribbed leggings | lululemon athletica | $118 | $50 | 4 | Black | Women > Pants & Jumpsuits > Leggings | Lululemon winder train ribbed leggings Size 4 Excellent gently used condition Black | https://poshmark.com/listing/Lululemon-winder-train-ribbed-leggings-687eea51bd4ce30d24103ddf | speechypies | Updated a minute ago |
+
+> **Note:** 
+> - The actual CSV file will contain the full URLs for images
+> - Categories are pipe-separated in the actual CSV output
+> - The table above shows a more readable representation of the data
+
 ### Sample Summary Output
 ```
 === Scraping Summary ===
