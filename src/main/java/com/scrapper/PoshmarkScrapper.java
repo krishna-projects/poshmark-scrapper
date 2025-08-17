@@ -18,10 +18,10 @@ public class PoshmarkScrapper {
     private static final boolean DEFAULT_HEADLESS = true;
 
     public static void main(String[] args) {
-        String closetUrl = DEFAULT_CLOSET_URL;
-        int productCount = DEFAULT_PRODUCT_COUNT;
-        String fileFormat = DEFAULT_FILE_FORMAT;
-        boolean headless = DEFAULT_HEADLESS;
+        String closetUrl;
+        int productCount;
+        String fileFormat;
+        boolean headless;
 
         // Parse command line arguments
         if (args.length > 0) {
@@ -71,6 +71,7 @@ public class PoshmarkScrapper {
         log.info("Output Format: {}", fileFormat);
         log.info("Headless Mode: {}", headless ? "Enabled" : "Disabled");
 
+        // create a new instance of PoshmarkScraper with the provided settings
         try (PoshmarkScraperImpl service = new PoshmarkScraperImpl(headless)) {
             double startTime = System.currentTimeMillis();
 

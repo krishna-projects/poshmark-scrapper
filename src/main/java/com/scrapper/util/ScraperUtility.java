@@ -1,23 +1,17 @@
 package com.scrapper.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.scrapper.model.Product;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
 @Slf4j
 public class ScraperUtility {
 
+    // Extract the product ID from the URL (e.g., from "/listing/Product-Name-1234567890123456789")
     public static String extractProductIdFromUrl(String url) {
-        // Extract the product ID from the URL (e.g., from "/listing/Product-Name-1234567890123456789")
         try {
             String[] parts = url.split("/");
             return parts[parts.length - 1];
@@ -27,6 +21,7 @@ public class ScraperUtility {
         return "unknown";
     }
 
+    // Add a random delay to avoid being blocked
     public static void randomSleep(int minSeconds, int maxSeconds) {
         int min = minSeconds * 1000;
         int max = maxSeconds * 1000;
@@ -39,6 +34,7 @@ public class ScraperUtility {
         }
     }
 
+    // Extract text from an HTML Document
     public static String getElementText(Document element, String selector) {
         try {
             return Objects.requireNonNull(element.selectFirst(selector)).text();
@@ -48,6 +44,7 @@ public class ScraperUtility {
         }
     }
 
+    // Extract text from an HTML element
     public static String getElementText(Element element) {
         try {
             return element.text();
@@ -57,18 +54,21 @@ public class ScraperUtility {
         }
     }
 
+    // Extract image URLs from a product page
     public static List<String> getImageUrls(Document doc) {
         return doc.select("ul.carousel-vertical__inner > li").stream()
                 .map(element -> getImages(element.selectFirst("img")))
                 .toList();
     }
 
+    // Extract text from a list of elements
     public static List<String> getListElementText(Document doc, String selector) {
         return doc.select(selector).stream()
                 .map(ScraperUtility::getElementText)
                 .toList();
     }
 
+    // Extract image URLs from an HTML element
     public static String getImages(Element image) {
         try {
             return image.attr("src").isEmpty() ? image.attr("data-src") : image.attr("src");

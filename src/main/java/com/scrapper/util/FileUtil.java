@@ -25,6 +25,7 @@ public class FileUtil {
             .registerModule(new JavaTimeModule())
             .enable(SerializationFeature.INDENT_OUTPUT);
 
+    // Save results to file
     public static String saveResultsToFile(List<Product> products, String format, double executionTimeSeconds, String sourceUrl) {
         if (products == null || products.isEmpty()) {
             log.warn("No products provided to save");
@@ -37,6 +38,7 @@ public class FileUtil {
 
         try {
             if ("csv".equalsIgnoreCase(format)) {
+                // Save as CSV
                 return saveAsCsv(products, outputPath);
             } else {
                 // Create metadata
@@ -66,6 +68,7 @@ public class FileUtil {
         }
     }
 
+    // Save as CSV
     private static String saveAsCsv(List<Product> products, Path outputPath) throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(outputPath)) {
             // Write CSV header
@@ -99,6 +102,7 @@ public class FileUtil {
         }
     }
 
+    // Helper method to escape CSV fields
     private static String escapeCsvField(String field) {
         if (field == null) {
             return "";

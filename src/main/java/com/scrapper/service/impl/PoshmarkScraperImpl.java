@@ -89,8 +89,6 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
 
         }
         log.info("Found {} products after scrolling", productUrls.size());
-        productUrls.forEach(log::info);
-
         return productUrls;
     }
 
@@ -189,6 +187,9 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
         }
     }
 
+    /**
+     * Saves the summary report to a file
+     */
     private void saveSummaryToFile() {
         try {
             String summaryReport = summary.generateReport();

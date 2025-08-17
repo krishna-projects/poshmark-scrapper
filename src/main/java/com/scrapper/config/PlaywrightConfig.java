@@ -21,10 +21,12 @@ public class PlaywrightConfig implements AutoCloseable {
     };
     private static final int SLOW_MO = 200; // Increased delay between operations
 
+    // Private constructor
     private PlaywrightConfig() {
         this.playwright = Playwright.create();
     }
 
+    // Singleton PlaywrightConfig instance
     public static synchronized PlaywrightConfig getInstance() {
         if (instance == null) {
             instance = new PlaywrightConfig();
@@ -112,6 +114,7 @@ public class PlaywrightConfig implements AutoCloseable {
         return page;
     }
 
+    // Method to fetch a product page using JSoup
     public Document getJsoupDocument(String productUrl) throws IOException {
         return Jsoup.connect(productUrl)
                 .userAgent(getRandomUserAgent())
