@@ -2,14 +2,17 @@ package com.scrapper.service.impl;
 
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
-import com.microsoft.playwright.*;
+import com.microsoft.playwright.ElementHandle;
+import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.WaitUntilState;
 import com.scrapper.config.PlaywrightConfig;
 import com.scrapper.model.Product;
 import com.scrapper.service.PostmarkScraperService;
 import com.scrapper.util.ScraperUtility;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.nodes.Document;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -97,7 +100,7 @@ public class PoshmarkScraperImpl implements PostmarkScraperService {
         Page page = null;
         int processed = 0;
         final int MAX_PRODUCTS_PER_SESSION = 10;
-        
+
         try {
             for (String productUrl : productUrls) {
                 try {
@@ -111,23 +114,23 @@ public class PoshmarkScraperImpl implements PostmarkScraperService {
                         // Add a longer delay when creating a new page
                         ScraperUtility.randomSleep(5, 10);
                     }
-                    
+
                     log.info("Scraping product: {}", productUrl);
-                    
+
                     // Random delay before navigation
                     ScraperUtility.randomSleep(2, 5);
-                    
+
                     // Navigate to the product page
                     page.navigate(productUrl, new Page.NavigateOptions()
                             .setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
-                    
+
                     // Wait for the page to load
                     page.waitForSelector("h1", new Page.WaitForSelectorOptions()
                             .setTimeout(15000));
-                    
+
                     // Human-like scroll through the page
                     humanScroll(page, 300, 800, 2);
-                    
+
                     // Extract product details with null checks
                     String title = "";
                     try {
@@ -138,34 +141,34 @@ public class PoshmarkScraperImpl implements PostmarkScraperService {
                     } catch (Exception e) {
                         log.error("Error extracting title for {}: {}", productUrl, e.getMessage());
                     }
-                    
+
                     // Add more product details here as needed
-                    
+
                     products.add(Product.builder()
                             .productId(ScraperUtility.extractProductIdFromUrl(productUrl))
                             .productTitle(title)
                             .productUrl(productUrl)
                             .build());
-                    
+
                     processed++;
-                    
+
                     // Random delay after processing
                     ScraperUtility.randomSleep(2, 4);
-                    
+
                 } catch (Exception e) {
                     log.error("❌ Error processing product {}: {}", productUrl, e.getMessage());
                     // Continue with next product on error
                 }
             }
-            
+
         } catch (Exception e) {
-            log.error("❌ Error in scrapeProducts: {}", e.getMessage(), e);
+            log.error("❌ Error in scrapeProducts: {}", e.getMessage());
         } finally {
             if (page != null) {
                 page.close();
             }
         }
-        
+
         log.info("Successfully scraped {} out of {} products", products.size(), productUrls.size());
         return products;
     }
@@ -173,9 +176,67 @@ public class PoshmarkScraperImpl implements PostmarkScraperService {
 
     private void humanScroll(Page page, int minScroll, int maxScroll, int scrolls) {
         for (int i = 0; i < scrolls; i++) {
-            int scrollAmount = minScroll + (int)(Math.random() * (maxScroll - minScroll));
+            int scrollAmount = minScroll + (int) (Math.random() * (maxScroll - minScroll));
             page.evaluate("window.scrollBy(0, " + scrollAmount + ");");
             ScraperUtility.randomSleep(3, 8);
         }
     }
+
+    /**
+     * Scrapes product details using Jsoup (faster than Playwright for simple pages)
+     *
+     * @param productUrls URL of the product to scrape
+     * @return Product object with scraped details
+     */
+    public List<Product> scrapeWithJsoup(Set<String> productUrls) {
+        // Add random delay to avoid being blocked
+        ScraperUtility.randomSleep(3, 6);
+        List<Product> products = new ArrayList<>();
+        productUrls.parallelStream().forEach(productUrl -> {
+            log.info("Scraping product jsoup: {}", productUrl);
+            ScraperUtility.randomSleep(2, 5);
+            try {
+                // Connect with headers to mimic a real browser request
+                Document doc = PlaywrightConfig.getJsoupDocument(productUrl);
+
+                // Extract product details
+                String productId = ScraperUtility.extractProductIdFromUrl(productUrl);
+                String productTitle = ScraperUtility.getElementText(doc, "h1.listing__title-container");
+                String brandName = ScraperUtility.getElementText(doc, "a.listing__brand");
+                String price = ScraperUtility.getElementText(doc, "span.m--l--2");
+                String discountedPrice = ScraperUtility.getElementText(doc, "p.h1").split(" ")[0];
+                String size = ScraperUtility.getElementText(doc, "button.size-selector__size-option");
+                List<String> colors = ScraperUtility.getListElementText(doc, "div.m--r--7:nth-child(2) > div");
+                String description = ScraperUtility.getElementText(doc.selectFirst("div.listing__description"));
+                List<String> categories = ScraperUtility.getListElementText(doc, "div.m--r--7:nth-child(1) > div");
+                List<String> imageUrls = ScraperUtility.getImageUrls(doc);
+                String sellerUsername = ScraperUtility.getElementText(doc, ".listing__header-container .d--fl > .d--fl a");
+                String listingDate = ScraperUtility.getElementText(doc, ".timestamp");
+
+                // Build and return product
+                Product product = Product.builder()
+                        .productId(ScraperUtility.extractProductIdFromUrl(productId))
+                        .productTitle(productTitle)
+                        .brandName(brandName)
+                        .price(price)
+                        .discountedPrice(discountedPrice)
+                        .size(size)
+                        .colors(colors)
+                        .categories(categories)
+                        .description(description)
+                        .productUrl(productUrl)
+                        .imageUrls(imageUrls)
+                        .sellerUsername(sellerUsername)
+                        .listingDate(listingDate)
+                        .build();
+                products.add(product);
+
+            } catch (IOException e) {
+                log.error("❌ Error scraping {} with Jsoup: {}", productUrl, e.getMessage());
+            }
+        });
+        return products;
+    }
+
+
 }

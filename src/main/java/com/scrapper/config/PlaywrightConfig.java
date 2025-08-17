@@ -2,25 +2,30 @@ package com.scrapper.config;
 
 import com.microsoft.playwright.*;
 import lombok.experimental.UtilityClass;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
+import java.io.IOException;
 import java.util.List;
 
 @UtilityClass
 public class PlaywrightConfig {
     private static final String[] USER_AGENTS = {
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Safari/605.1.15",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0"
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Safari/605.1.15",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.0.0",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
     };
     private static final int SLOW_MO = 200; // Increased delay between operations
-    
-    private static String getRandomUserAgent() {
+
+    public static String getRandomUserAgent() {
         return USER_AGENTS[(int) (Math.random() * USER_AGENTS.length)];
     }
 
     /**
      * Creates and configures a new Playwright browser instance
+     *
      * @return Configured Browser instance
      */
     public static Browser createBrowser(boolean headless) {
@@ -30,21 +35,22 @@ public class PlaywrightConfig {
                         .setHeadless(headless)
                         .setSlowMo(SLOW_MO)
                         .setArgs(List.of(
-                        "--disable-blink-features=AutomationControlled",  // Hide automation flags
-                        "--window-size=1920,1080"
-                )));
+                                "--disable-blink-features=AutomationControlled",  // Hide automation flags
+                                "--window-size=1920,1080"
+                        )));
     }
 
     /**
      * Creates a new browser context with default settings
+     *
      * @param browser Browser instance to create context from
      * @return Configured BrowserContext
      */
     public static BrowserContext createBrowserContext(Browser browser) {
         // Generate a random viewport size to appear more human-like
-        int width = 1280 + (int)(Math.random() * 500);  // 1280-1780
-        int height = 800 + (int)(Math.random() * 500);  // 800-1300
-        
+        int width = 1280 + (int) (Math.random() * 500);  // 1280-1780
+        int height = 800 + (int) (Math.random() * 500);  // 800-1300
+
         // Create context with more human-like settings
         BrowserContext context = browser.newContext(new Browser.NewContextOptions()
                 .setViewportSize(width, height)
@@ -58,29 +64,30 @@ public class PlaywrightConfig {
                 .setHttpCredentials(null)
                 .setIgnoreHTTPSErrors(true)
         );
-        
+
         // Add common headers
         context.setDefaultNavigationTimeout(60000);
         context.setDefaultTimeout(30000);
-        
+
         // Add common headers to make requests look more like a real browser
         context.setExtraHTTPHeaders(java.util.Map.of(
-            "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "Accept-Language", "en-US,en;q=0.5",
-            "Accept-Encoding", "gzip, deflate, br",
-            "Connection", "keep-alive",
-            "Upgrade-Insecure-Requests", "1",
-            "Sec-Fetch-Dest", "document",
-            "Sec-Fetch-Mode", "navigate",
-            "Sec-Fetch-Site", "same-origin",
-            "Cache-Control", "max-age=0"
+                "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                "Accept-Language", "en-US,en;q=0.5",
+                "Accept-Encoding", "gzip, deflate, br",
+                "Connection", "keep-alive",
+                "Upgrade-Insecure-Requests", "1",
+                "Sec-Fetch-Dest", "document",
+                "Sec-Fetch-Mode", "navigate",
+                "Sec-Fetch-Site", "same-origin",
+                "Cache-Control", "max-age=0"
         ));
-        
+
         return context;
     }
 
     /**
      * Creates a new page with default timeout settings
+     *
      * @param context BrowserContext to create page from
      * @return New Page instance
      */
@@ -92,4 +99,24 @@ public class PlaywrightConfig {
         page.setDefaultTimeout(10000);
         return page;
     }
+
+    public static Document getJsoupDocument(String productUrl) throws IOException {
+        return Jsoup.connect(productUrl)
+                .userAgent(PlaywrightConfig.getRandomUserAgent())
+                .timeout(10000)
+                .header("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
+                .header("accept-language", "en-US,en;q=0.9,hi;q=0.8")
+                .header("priority", "u=0, i")
+                .header("sec-ch-ua", "\"Not;A=Brand\";v=\"99\", \"Google Chrome\";v=\"139\", \"Chromium\";v=\"139\"")
+                .header("sec-ch-ua-mobile", "?0")
+                .header("sec-ch-ua-platform", "\"macOS\"")
+                .header("sec-fetch-dest", "document")
+                .header("sec-fetch-mode", "navigate")
+                .header("sec-fetch-site", "none")
+                .header("sec-fetch-user", "?1")
+                .header("upgrade-insecure-requests", "1")
+                .header("Cookie", "_csrf=Es9WIOgVYOA7c9PG5Kv88BBk; esid=sift%3A68a08d0b28eb2753945f5a19; ps=%7B%22bid%22%3A%2268a08d0b28eb2753945f5a18%22%2C%22extvid%22%3A%22ext1%3A78674df7-a237-4534-b2e3-48aa6d391e21%22%7D; vsegv3=eyJsMDEiOiIwNDQiLCJsMDIiOiIwNjUiLCJsMDMiOiIxMjgiLCJsMDQiOiIxMDkiLCJsMDUiOiIwNTEiLCJsMDYiOiIwMzUiLCJsMDciOiIwMDQiLCJsMDgiOiIxMjMifQ%3D%3D")
+                .get();
+    }
+
 }
