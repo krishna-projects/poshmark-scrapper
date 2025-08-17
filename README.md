@@ -14,6 +14,8 @@ A Java-based web scraper for extracting product information from Poshmark closet
 - Parallel processing for improved performance
 - Detailed scraping summary with success/failure reports
 - Configurable output formats (JSON/CSV)
+- Interactive command-line interface with sensible defaults
+- Progress tracking during scraping
 
 ## Setup Instructions
 
@@ -39,55 +41,62 @@ A Java-based web scraper for extracting product information from Poshmark closet
 
 ### Running the Application
 
-#### Option 1: Using Maven
+#### Option 1: Using Maven (Interactive Mode)
 ```bash
 mvn exec:java -Dexec.mainClass="com.scrapper.PoshmarkScrapper"
 ```
+This will launch the scraper in interactive mode, prompting you for any required information.
 
 #### Option 2: Using Executable JAR (Recommended)
 ```bash
-# Basic usage
+# Basic usage (User input / if no parameters are provided, uses all defaults)
 java -jar target/poshmark-scrapper-1.0-SNAPSHOT-jar-with-dependencies.jar
 
-# With custom parameters
-java -jar target/poshmark-scrapper-1.0-SNAPSHOT-jar-with-dependencies.jar "https://poshmark.com/closet/peechypies?availability=available" 20 json false
+# With custom parameters (positional arguments)
+java -jar target/poshmark-scrapper-1.0-SNAPSHOT-jar-with-dependencies.jar "https://poshmark.com/closet/peechypies?availability=available"  20  json true
 
-parameter 1 - page url -> "https://poshmark.com/closet/peechypies?availability=available"
-parameter 2 - product count -> 20
-parameter 3 - file format -> json / csv
-parameter 4 - headless -> true / false 
+# Parameter breakdown (all parameters are optional and will use defaults if not provided):
+# 1. Poshmark closet URL (default: https://poshmark.com/closet/peechypies?availability=available)
+# 2. Number of products to scrape (default: 10)
+# 3. Output format: json or csv (default: json)
+# 4. Headless mode: true or false (default: true)
 ```
+
+#### Interactive Mode
+If you run the JAR without parameters, the application will prompt you for any missing information:
+
+1. First, it will ask for the Poshmark closet URL
+2. Then, it will ask how many products to scrape
+3. Next, it will ask for the output format (json/csv)
+4. Finally, it will ask if you want to run in headless mode (true/false)
+
+Default values are shown in square brackets and will be used if you press Enter without typing anything.
 
 > **Note:** The first time you run the JAR, it will download the required browser binaries for Playwright.
 
-### Available Command Line Arguments
+### Default Values
 
-| Parameter    | Description | Default |
-|--------------|-------------|---------|
-| `--url`      | Poshmark closet URL | https://poshmark.com/closet/peechypies?availability=available |
-| `--count`    | Number of products to scrape | 10 |
-| `--format`   | Output format (json/csv) | json |
-| `--headless` | Run browser in headless mode | false |
+| Setting | Default Value |
+|---------|---------------|
+| Closet URL | https://poshmark.com/closet/peechypies?availability=available |
+| Product Count | 10 |
+| Output Format | json |
+| Headless Mode | true |
 
-### Building a Standalone JAR
+### Output Files
 
-To create a new JAR file with all dependencies:
+The scraper generates two output files:
 
-```bash
-mvn clean package
-```
+1. `scraping_summary.txt` - Contains detailed statistics about the scraping process
+2. `poshmark_products_[timestamp].[json/csv]` - Contains the scraped product data
 
-The JAR file will be created at:
-```
-target/poshmark-scrapper-1.0-SNAPSHOT-jar-with-dependencies.jar
-```
+> **Note:** The first time you run the JAR, it will download the required browser binaries for Playwright.
 
-You can then distribute and run this JAR on any system with Java 8+ installed.
 
 ## Dependencies
 
 ### Core Dependencies
-- Java 8+
+- Java 17+
 - Maven 3.6.0+
 - Playwright for Java
 - Jsoup (HTML parsing)

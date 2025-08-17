@@ -6,6 +6,7 @@ import com.scrapper.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 
 @Slf4j
@@ -17,11 +18,46 @@ public class PoshmarkScrapper {
     private static final boolean DEFAULT_HEADLESS = true;
 
     public static void main(String[] args) {
+        String closetUrl = DEFAULT_CLOSET_URL;
+        int productCount = DEFAULT_PRODUCT_COUNT;
+        String fileFormat = DEFAULT_FILE_FORMAT;
+        boolean headless = DEFAULT_HEADLESS;
+
         // Parse command line arguments
-        String closetUrl = args.length > 0 ? args[0] : DEFAULT_CLOSET_URL;
-        int productCount = args.length > 1 ? Integer.parseInt(args[1]) : DEFAULT_PRODUCT_COUNT;
-        String fileFormat = args.length > 2 ? args[2].toLowerCase() : DEFAULT_FILE_FORMAT;
-        boolean headless = args.length > 3 ? Boolean.parseBoolean(args[3]) : DEFAULT_HEADLESS;
+        if (args.length > 0) {
+            try {
+                closetUrl = args[0];
+                productCount = Integer.parseInt(args[1]);
+                fileFormat = args[2].toLowerCase();
+                headless = Boolean.parseBoolean(args[3]);
+            } catch (Exception e) {
+                log.error("Invalid command line arguments. Using default values.");
+                closetUrl = DEFAULT_CLOSET_URL;
+                productCount = DEFAULT_PRODUCT_COUNT;
+                fileFormat = DEFAULT_FILE_FORMAT;
+                headless = DEFAULT_HEADLESS;
+            }
+        }else {
+            // if no command line arguments are provided, prompt the user
+            try {
+                log.info("No command line arguments provided. Please provide the following:");
+                Scanner scanner = new Scanner(System.in);
+                log.info("Enter closet URL (default: {}):", DEFAULT_CLOSET_URL);
+                closetUrl = scanner.nextLine().trim().isEmpty() ? DEFAULT_CLOSET_URL : scanner.nextLine();
+                log.info("Enter product count (default: {}):", DEFAULT_PRODUCT_COUNT);
+                productCount = scanner.nextInt();
+                log.info("Enter file format (default: {}):", DEFAULT_FILE_FORMAT);
+                fileFormat = scanner.next().toLowerCase();
+                log.info("Enter headless mode (default: {}):", DEFAULT_HEADLESS);
+                headless = scanner.nextBoolean();
+            }catch (Exception e) {
+                log.error("Invalid input. Using default values.");
+                closetUrl = DEFAULT_CLOSET_URL;
+                productCount = DEFAULT_PRODUCT_COUNT;
+                fileFormat = DEFAULT_FILE_FORMAT;
+                headless = DEFAULT_HEADLESS;
+            }
+        }
 
         // Validate file format
         if (!List.of("json", "csv").contains(fileFormat)) {
@@ -35,7 +71,7 @@ public class PoshmarkScrapper {
         log.info("Output Format: {}", fileFormat);
         log.info("Headless Mode: {}", headless ? "Enabled" : "Disabled");
 
-        try (PoshmarkScraperImpl service = new PoshmarkScraperImpl(headless)){
+        try (PoshmarkScraperImpl service = new PoshmarkScraperImpl(headless)) {
             double startTime = System.currentTimeMillis();
 
             log.info("Fetching product URLs...");
