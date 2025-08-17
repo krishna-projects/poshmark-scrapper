@@ -13,10 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseable {
@@ -212,9 +210,13 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
     public List<Product> scrapeWithJsoup(Set<String> productUrls) {
         // Add random delay to avoid being blocked
         ScraperUtility.randomSleep(3, 6);
-        List<Product> products = new ArrayList<>();
+        List<Product> products = Collections.synchronizedList(new ArrayList<>());
+        AtomicInteger counter = new AtomicInteger(1);
+        int totalProducts = productUrls.size();
+
         productUrls.parallelStream().forEach(productUrl -> {
-            log.info("Scraping product jsoup: {}", productUrl);
+            int currentIndex = counter.getAndIncrement();
+            log.info("Processing product {}/{}: {}", currentIndex, totalProducts, productUrl);
             ScraperUtility.randomSleep(2, 5);
             try {
                 // Connect with headers to mimic a real browser request
@@ -253,9 +255,12 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
                 products.add(product);
 
             } catch (IOException e) {
-                log.error("❌ Error scraping {} with Jsoup: {}", productUrl, e.getMessage());
+                log.error("Error processing product {}/{} ({}): {}",
+                        currentIndex, totalProducts, productUrl, e.getMessage());
+
             }
         });
+        log.info("Completed processing {}/{} products", totalProducts, totalProducts);
         return products;
     }
 
