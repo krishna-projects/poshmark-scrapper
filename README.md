@@ -16,6 +16,7 @@ A Java-based web scraper for extracting product information from Poshmark closet
 - Configurable output formats (JSON/CSV)
 - Interactive command-line interface with sensible defaults
 - Progress tracking during scraping
+- Automatic retry mechanism for failed requests 
 
 ## Setup Instructions
 
@@ -103,9 +104,17 @@ The scraper generates two output files:
 - Lombok (reduces boilerplate code)
 - SLF4J (logging)
 
+## Retry Mechanism
+
+The scraper includes a robust retry mechanism to handle temporary network issues and rate limiting:
+
+- **Automatic Retries**: Up to 3 attempts per request
+- **Randomized Delays**: 2-7 seconds between retries to avoid detection
+- **Detailed Logging**: Warnings for each retry attempt and final error if all retries fail
+
 ## Known Limitations
 
-1. **Rate Limiting**: Poshmark may block or rate limit requests if too many are made in a short period. The scraper includes random delays to mitigate this.
+1. **Rate Limiting**: Poshmark may block or rate limit requests if too many are made in a short period. The scraper includes random delays and automatic retries to mitigate this.
 
 2. **Dynamic Content**: Some content is loaded dynamically with JavaScript. The scraper uses Playwright to handle this, but may require updates if Poshmark changes their frontend.
 
