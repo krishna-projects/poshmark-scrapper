@@ -7,12 +7,16 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.WaitUntilState;
 import com.scrapper.config.PlaywrightConfig;
 import com.scrapper.model.Product;
+import com.scrapper.model.ScrapingSummary;
 import com.scrapper.service.PostmarkScraperService;
 import com.scrapper.util.ScraperUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,6 +25,7 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
     private final BrowserContext context;
     private final Browser browser;
     private final PlaywrightConfig playwrightConfig;
+    private final ScrapingSummary summary = new ScrapingSummary();
 
     public PoshmarkScraperImpl(boolean headless) {
         this.playwrightConfig = PlaywrightConfig.getInstance();
@@ -31,6 +36,7 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
     @Override
     public Set<String> getProductUrls(String closetUrl, int productCount) {
         // if no product count provided, scrape as many as possible
+        summary.start();
         productCount = productCount > 0 ? productCount : Integer.MAX_VALUE;
         Set<String> productUrls = new HashSet<>();
 
@@ -157,13 +163,13 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
                     ScraperUtility.randomSleep(2, 4);
 
                 } catch (Exception e) {
-                    log.error("❌ Error processing product {}: {}", productUrl, e.getMessage());
+                    log.error("Error processing product {}: {}", productUrl, e.getMessage());
                     // Continue with next product on error
                 }
             }
 
         } catch (Exception e) {
-            log.error("❌ Error in scrapeProducts: {}", e.getMessage());
+            log.error("Error in scrapeProducts: {}", e.getMessage());
         } finally {
             if (page != null) {
                 page.close();
@@ -180,6 +186,17 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
             int scrollAmount = minScroll + (int) (Math.random() * (maxScroll - minScroll));
             page.evaluate("window.scrollBy(0, " + scrollAmount + ");");
             ScraperUtility.randomSleep(3, 8);
+        }
+    }
+
+    private void saveSummaryToFile() {
+        try {
+            String summaryReport = summary.generateReport();
+            Path summaryPath = Paths.get("scraping_summary.txt");
+            Files.writeString(summaryPath, summaryReport);
+            log.debug("Scraping summary saved to: {}", summaryPath.toAbsolutePath());
+        } catch (Exception e) {
+            log.error("Failed to save scraping summary: {}", e.getMessage());
         }
     }
 
@@ -208,6 +225,9 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
      * @return Product object with scraped details
      */
     public List<Product> scrapeWithJsoup(Set<String> productUrls) {
+        // Initialize summary
+        summary.setTotalProducts(productUrls.size());
+        summary.setTotalProducts(productUrls.size());
         // Add random delay to avoid being blocked
         ScraperUtility.randomSleep(3, 6);
         List<Product> products = Collections.synchronizedList(new ArrayList<>());
@@ -253,14 +273,21 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
                         .listingDate(listingDate)
                         .build();
                 products.add(product);
-
-            } catch (IOException e) {
-                log.error("Error processing product {}/{} ({}): {}",
-                        currentIndex, totalProducts, productUrl, e.getMessage());
-
+                summary.addSuccessfulProduct(productUrl);
+            } catch (Exception e) {
+                String errorMsg = String.format("Error processing product %s: %s", 
+                    productUrl, e.getMessage());
+                summary.addFailedProduct(productUrl, e.getMessage());
+                log.error("Error processing {}/{} ({}): {}",
+                        currentIndex, totalProducts, productUrl, errorMsg);
             }
         });
+        
+        // Finalize summary
+        summary.end();
+        saveSummaryToFile();
         log.info("Completed processing {}/{} products", totalProducts, totalProducts);
+        log.info("Scraping summary has been saved to 'scraping_summary.txt'");
         return products;
     }
 
