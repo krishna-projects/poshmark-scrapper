@@ -2,7 +2,7 @@ package com.scrapper;
 
 import com.scrapper.model.Product;
 import com.scrapper.service.impl.PoshmarkScraperImpl;
-import com.scrapper.util.JsonUtils;
+import com.scrapper.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -36,23 +36,22 @@ public class PoshmarkScrapper {
         log.info("Headless Mode: {}", headless ? "Enabled" : "Disabled");
 
         try {
-            long startTime = System.currentTimeMillis();
+            double startTime = System.currentTimeMillis();
             PoshmarkScraperImpl service = new PoshmarkScraperImpl(headless);
-            
+
             log.info("Fetching product URLs...");
             Set<String> productUrls = service.getProductUrls(closetUrl, productCount);
             log.info("Extracted {} links from Poshmark", productUrls.size());
-            
+
             log.info("Scraping product details...");
             List<Product> products = service.scrapeWithJsoup(productUrls);
             log.info("Successfully scraped {} products", products.size());
-            
-            String outputPath = JsonUtils.saveResultsToFile(products, fileFormat);
-            log.info("Results saved to: {}", outputPath);
-            
-            log.info("Total execution time: {} seconds", 
+            double exceptionTimeSeconds = (System.currentTimeMillis() - startTime) / 1000.0;
+            log.info("Total execution time: {} seconds",
                     (System.currentTimeMillis() - startTime) / 1000.0);
-                    
+            String outputPath = FileUtil.saveResultsToFile(products, fileFormat, exceptionTimeSeconds, closetUrl);
+            log.info("Results saved to: {}", outputPath);
+
         } catch (Exception e) {
             log.error("An error occurred during scraping: {}", e.getMessage());
             System.exit(1);
