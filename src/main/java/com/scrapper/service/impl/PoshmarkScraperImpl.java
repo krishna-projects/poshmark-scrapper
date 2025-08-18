@@ -251,7 +251,7 @@ public class PoshmarkScraperImpl implements PostmarkScraperService, AutoCloseabl
                 String discountedPrice = ScraperUtility.getElementText(doc, "p.h1").split(" ")[0];
                 String size = ScraperUtility.getElementText(doc, "button.size-selector__size-option");
                 List<String> colors = ScraperUtility.getListElementText(doc, "div.m--r--7:nth-child(2) > div");
-                String description = ScraperUtility.getElementText(doc.selectFirst("div.listing__description"));
+                String description = ScraperUtility.getElementText(doc, "div.listing__description");
                 List<String> categories = ScraperUtility.getListElementText(doc, "div.m--r--7:nth-child(1) > div");
                 List<String> imageUrls = ScraperUtility.getImageUrls(doc);
                 String sellerUsername = ScraperUtility.getElementText(doc, ".listing__header-container .d--fl > .d--fl a");

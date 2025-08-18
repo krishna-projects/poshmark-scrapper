@@ -37,20 +37,28 @@ public class PoshmarkScrapper {
                 fileFormat = DEFAULT_FILE_FORMAT;
                 headless = DEFAULT_HEADLESS;
             }
-        }else {
+        } else {
             // if no command line arguments are provided, prompt the user
             try {
                 log.info("No command line arguments provided. Please provide the following:");
                 Scanner scanner = new Scanner(System.in);
-                log.info("Enter closet URL (default: {}):", DEFAULT_CLOSET_URL);
-                closetUrl = scanner.nextLine().trim().isEmpty() ? DEFAULT_CLOSET_URL : scanner.nextLine();
-                log.info("Enter product count (default: {}):", DEFAULT_PRODUCT_COUNT);
-                productCount = scanner.nextInt();
-                log.info("Enter file format (default: {}):", DEFAULT_FILE_FORMAT);
-                fileFormat = scanner.next().toLowerCase();
-                log.info("Enter headless mode (default: {}):", DEFAULT_HEADLESS);
-                headless = scanner.nextBoolean();
-            }catch (Exception e) {
+
+                log.info("Enter closet URL, press enter for default (default: {}):", DEFAULT_CLOSET_URL);
+                String input = scanner.nextLine().trim();
+                closetUrl = input.isEmpty() ? DEFAULT_CLOSET_URL : input;
+
+                log.info("Enter product count, press enter for default (default: {}):", DEFAULT_PRODUCT_COUNT);
+                input = scanner.nextLine().trim();
+                productCount = input.isEmpty() ? DEFAULT_PRODUCT_COUNT : Integer.parseInt(input);
+
+                log.info("Enter file format, press enter for default (default: {}):", DEFAULT_FILE_FORMAT);
+                input = scanner.nextLine().trim();
+                fileFormat = input.isEmpty() ? DEFAULT_FILE_FORMAT : input.toLowerCase();
+
+                log.info("Enter headless mode, press enter for default (default: {}):", DEFAULT_HEADLESS);
+                input = scanner.nextLine().trim();
+                headless = input.isEmpty() ? DEFAULT_HEADLESS : Boolean.parseBoolean(input);
+            } catch (Exception e) {
                 log.error("Invalid input. Using default values.");
                 closetUrl = DEFAULT_CLOSET_URL;
                 productCount = DEFAULT_PRODUCT_COUNT;
